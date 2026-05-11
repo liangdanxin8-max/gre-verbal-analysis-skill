@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRE Verbal 解析报告 · Sample</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #eef2ff;
+    --wrong: #ef4444;
+    --wrong-light: #fef2f2;
+    --right: #22c55e;
+    --right-light: #f0fdf4;
+    --warning: #f59e0b;
+    --warning-light: #fffbeb;
+    --gray: #6b7280;
+    --gray-light: #f9fafb;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'PingFang SC', 'Hiragino Sans GB', system-ui, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.7; }
+  
+  .hero { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 48px 32px 40px; text-align: center; }
+  .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .hero p { opacity: 0.85; font-size: 1rem; }
+  .score-row { display: flex; justify-content: center; gap: 32px; margin-top: 24px; flex-wrap: wrap; }
+  .score-card { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 16px 24px; text-align: center; }
+  .score-card .num { font-size: 2rem; font-weight: 800; }
+  .score-card .label { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+  
+  .overview { background: white; border-radius: 16px; padding: 28px; margin-bottom: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .overview h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--primary); }
+  
+  .skill-bars { display: grid; gap: 12px; }
+  .skill-row { display: flex; align-items: center; gap: 12px; }
+  .skill-name { width: 160px; font-size: 0.875rem; color: var(--gray); flex-shrink: 0; }
+  .bar-wrap { flex: 1; background: #f1f5f9; border-radius: 6px; height: 20px; overflow: hidden; }
+  .bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; color: white; font-weight: 600; }
+  .bar.good { background: var(--right); }
+  .bar.mid { background: var(--warning); }
+  .bar.bad { background: var(--wrong); }
+  .skill-stat { width: 50px; text-align: right; font-size: 0.875rem; font-weight: 700; }
+
+  .section-header { background: var(--primary); color: white; border-radius: 12px; padding: 16px 24px; margin: 32px 0 20px; display: flex; align-items: center; gap: 12px; }
+  .section-header h2 { font-size: 1.1rem; font-weight: 700; }
+  .section-badge { background: rgba(255,255,255,0.2); border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; }
+
+  .question-card { background: white; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+  .q-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .q-num { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+  .q-type { background: var(--primary-light); color: var(--primary); padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .q-result { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+  .badge { padding: 3px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+  .badge.wrong { background: var(--wrong-light); color: var(--wrong); }
+  .badge.right { background: var(--right-light); color: var(--right); }
+  .time-badge { background: var(--gray-light); color: var(--gray); padding: 3px 8px; border-radius: 20px; font-size: 0.75rem; }
+  
+  .q-body { padding: 20px; }
+  .question-text { background: #f8fafc; border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 14px 16px; font-style: italic; margin-bottom: 16px; font-size: 0.9rem; line-height: 1.8; }
+  
+  .options-grid { display: grid; gap: 6px; margin-bottom: 16px; }
+  .option { padding: 8px 14px; border-radius: 8px; font-size: 0.875rem; border: 1.5px solid transparent; }
+  .option.correct { border-color: var(--right); background: var(--right-light); color: #166534; font-weight: 600; }
+  .option.wrong-ans { border-color: var(--wrong); background: var(--wrong-light); color: #991b1b; }
+  .option.neutral { border-color: var(--border); background: var(--gray-light); color: var(--gray); }
+
+  .answer-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.875rem; }
+  .answer-box { padding: 8px 14px; border-radius: 8px; }
+  .answer-box.correct { background: var(--right-light); }
+  .answer-box.wrong-ans { background: var(--wrong-light); }
+  .answer-box strong { display: block; font-size: 0.75rem; margin-bottom: 2px; }
+  
+  .section-block { margin-bottom: 14px; }
+  .section-block h4 { font-size: 0.875rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px dashed var(--border); }
+  .section-block p { font-size: 0.875rem; color: #374151; margin-bottom: 6px; }
+  .section-block ul { padding-left: 18px; font-size: 0.875rem; color: #374151; }
+  .section-block ul li { margin-bottom: 4px; }
+  
+  .error-box { background: var(--wrong-light); border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+  .error-box h5 { color: var(--wrong); font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; }
+  .error-box p { font-size: 0.85rem; color: #7f1d1d; }
+  
+  .method-box { background: var(--primary-light); border: 1px solid #c7d2fe; border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+  .method-box h5 { color: var(--primary); font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; }
+  .method-box p { font-size: 0.85rem; color: #3730a3; }
+  
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 8px; }
+  .vocab-item { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; }
+  .vocab-item .word { font-weight: 700; color: var(--primary); }
+  .vocab-item .def { color: var(--gray); margin-top: 2px; }
+
+  .summary-section { background: white; border-radius: 16px; padding: 28px; margin-top: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .summary-section h2 { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
+  .method-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  .method-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b; }
+  .steps { counter-reset: step; }
+  .step { display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.875rem; }
+  .step-num { background: var(--primary); color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  
+  .vocab-master-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  .vocab-master-item { background: var(--primary-light); border-radius: 10px; padding: 10px 14px; }
+  .vocab-master-item .word { font-weight: 800; color: var(--primary); font-size: 0.9rem; }
+  .vocab-master-item .def { font-size: 0.75rem; color: #4338ca; margin-top: 2px; }
+  .vocab-master-item .tip { font-size: 0.7rem; color: #6366f1; margin-top: 3px; font-style: italic; }
+
+  footer { text-align: center; color: var(--gray); font-size: 0.8rem; padding: 32px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>GRE Verbal 做题解析报告</h1>
+  <p>Sample Student · 2026 Mock Exam · Adaptive Verbal Section</p>
+  <div class="score-row">
+    <div class="score-card">
+      <div class="num">143</div>
+      <div class="label">Verbal Scaled Score</div>
+    </div>
+    <div class="score-card">
+      <div class="num">19th</div>
+      <div class="label">Percentile</div>
+    </div>
+    <div class="score-card">
+      <div class="num">24</div>
+      <div class="label">本次覆盖题目</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 总览 -->
+  <div class="overview">
+    <h2>📊 题型能力总览</h2>
+    <div class="skill-bars">
+      <div class="skill-row">
+        <div class="skill-name">阅读理解 (RC)</div>
+        <div class="bar-wrap"><div class="bar good" style="width:80%">80%</div></div>
+        <div class="skill-stat" style="color:var(--right)">✅ 强项</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-name">单空填空 (SC)</div>
+        <div class="bar-wrap"><div class="bar mid" style="width:40%">40%</div></div>
+        <div class="skill-stat" style="color:var(--warning)">⚠ 待提升</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-name">双空等价 (SE)</div>
+        <div class="bar-wrap"><div class="bar bad" style="width:37%">37%</div></div>
+        <div class="skill-stat" style="color:var(--wrong)">❗ 核心弱项</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-name">双三空填空 (TC)</div>
+        <div class="bar-wrap"><div class="bar bad" style="width:30%">30%</div></div>
+        <div class="skill-stat" style="color:var(--wrong)">❗❗ 最弱项</div>
+      </div>
+    </div>
+    <p style="margin-top:16px;font-size:0.875rem;color:var(--gray);">核心问题：词汇量不足 + 逻辑结构识别薄弱。阅读理解已经相对稳定，重点突破填空题。</p>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section-header">
+    <h2>Section 1 · Verbal</h2>
+    <span class="section-badge">11题</span>
+    <span class="section-badge">6错5对</span>
+  </div>
+
+  <!-- S1Q1 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q1</span>
+      <span class="q-type">单空填空 SC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">逻辑取反型</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 答错</span>
+        <span class="time-badge">⏱ 54s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Discussions of impending water shortages are often couched in <strong>apocalyptic rhetoric</strong>, yet if the language is somewhat ___________, the basic message is sound: water is indeed scarce and growing scarcer.
+      </div>
+      <div class="options-grid">
+        <div class="option neutral">(A) abstract — 抽象的</div>
+        <div class="option wrong-ans">(B) complacent — 自满的 ← Student's answer</div>
+        <div class="option neutral">(C) ambiguous — 模糊的</div>
+        <div class="option correct">(D) overblown — 夸张过度的 ✓ 正确答案</div>
+        <div class="option neutral">(E) unfamiliar — 陌生的</div>
+      </div>
+      <div class="section-block">
+        <h4>🧠 解析</h4>
+        <p>句子结构：<strong>yet</strong>（转折）+ if（让步）→ 即使语言有某种缺陷，信息是正确的</p>
+        <p>空格需要与"<strong>apocalyptic rhetoric（末日式夸大修辞）</strong>"形成<strong>同义复现</strong>：夸大的修辞 → overblown（过度渲染的）</p>
+      </div>
+      <div class="error-box">
+        <h5>⚡ Student's Mistake</h5>
+        <p>选了(B) complacent（自满的）——与"语言风格是否夸张"完全无关，是在文章中找不到任何依据的词。</p>
+      </div>
+      <div class="method-box">
+        <h5>💡 核心方法：同义复现法</h5>
+        <p>空格答案 = 文章中某个词的同义改写。文中有"apocalyptic rhetoric" → 夸大的末日修辞 → <strong>overblown</strong>（夸张过头的）</p>
+      </div>
+      <div class="section-block">
+        <h4>📚 词汇</h4>
+        <div class="vocab-grid">
+          <div class="vocab-item"><span class="word">overblown</span><span class="def">夸张的，过度渲染的</span></div>
+          <div class="vocab-item"><span class="word">apocalyptic</span><span class="def">末日般的，灾难性的</span></div>
+          <div class="vocab-item"><span class="word">complacent</span><span class="def">自满的，盲目满足的</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1Q2 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q2</span>
+      <span class="q-type">双空填空 TC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">实验描述型</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 全错</span>
+        <span class="time-badge">⏱ 1m23s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        A classic experiment uncovered a striking (i)___ in the names people picked for two drawings. Subjects tended to give a rounded doodle a <strong>soft-sounding name</strong>, whereas a pointy scribble got the <strong>hard consonants</strong>. It is logical to interpret this result as reflecting an intuitive attempt to capture in human speech the (ii)___ properties of the drawings.
+      </div>
+      <div class="section-block">
+        <h4>Blank (i)</h4>
+        <div class="options-grid">
+          <div class="option correct">(A) consistency — 一致性/规律性 ✓</div>
+          <div class="option wrong-ans">(B) paradox — 悖论 ← Student's answer</div>
+          <div class="option neutral">(C) ambivalence — 矛盾心理</div>
+        </div>
+      </div>
+      <div class="section-block">
+        <h4>Blank (ii)</h4>
+        <div class="options-grid">
+          <div class="option neutral">(D) subtle — 微妙的</div>
+          <div class="option wrong-ans">(E) auditory — 听觉的 ← Student's answer</div>
+          <div class="option correct">(F) salient — 突出的，显著的 ✓</div>
+        </div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ Student's two mistakes</h5>
+        <p><strong>(B) paradox</strong>：看到"圆/尖"的对比就误判为矛盾。但实验显示的是稳定规律，不是矛盾！</p>
+        <p><strong>(E) auditory（听觉的）</strong>：这是最典型的陷阱词！图形没有声音，"捕捉图形属性"说的是图形的视觉特征（显著性），而非听觉属性。</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">salient ⭐</span><span class="def">突出的，显著的（高频词！）</span></div>
+        <div class="vocab-item"><span class="word">consistency</span><span class="def">一致性，连贯性</span></div>
+        <div class="vocab-item"><span class="word">auditory</span><span class="def">听觉的（陷阱词！）</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1Q3 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q3</span>
+      <span class="q-type">三空填空 TC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">因果+转折</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 部分错</span>
+        <span class="time-badge">⏱ 1m56s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Even mild criticism of public radio news reporting seems (i)___, because the (ii)___ such programming regularly receives is well deserved: the reporting is (iii)___.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(B) churlish, (D) approbation, (I) consistently perspicacious</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(B) churlish ✓, (E) vitriol ✗, (I) consistently perspicacious ✓</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ Student's Mistake：Blank (ii) 选了 vitriol</h5>
+        <p>vitriol = 刻薄的批评。但"regularly receives + well deserved"说明得到的是<strong>应得的正面评价</strong>，与vitriol完全矛盾。正确答案 approbation = 赞许（appro- = approve）。</p>
+      </div>
+      <div class="method-box">
+        <h5>💡 三空逻辑链</h5>
+        <p>批评它 → 显得小气(churlish) → 因为它得到的赞扬(approbation)是理所当然的 → 因为报道出色(perspicacious)</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">approbation ⭐</span><span class="def">赞许（≈approval）</span></div>
+        <div class="vocab-item"><span class="word">vitriol</span><span class="def">刻薄批评（反义！）</span></div>
+        <div class="vocab-item"><span class="word">churlish</span><span class="def">粗鲁的，小气的</span></div>
+        <div class="vocab-item"><span class="word">perspicacious</span><span class="def">睿智深刻的</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1Q4 & Q5: 正确题 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q4–Q5</span>
+      <span class="q-type">阅读理解 RC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">Edith Wharton</span>
+      <div class="q-result">
+        <span class="badge right">✅ 全对</span>
+        <span class="time-badge">⏱ 各约3分钟</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;color:var(--gray);">两题均正确！文章关于Edith Wharton被误读为"上流社会作家"，Scorsese电影强化了这一误解。你准确抓住了作者的批评立场和"跨越整个写作生涯"的论证依据。</p>
+    </div>
+  </div>
+
+  <!-- S1Q6 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q6</span>
+      <span class="q-type">双空等价 SE</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">形近词陷阱</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 部分错</span>
+        <span class="time-badge">⏱ 35s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Elizabethan actor Richard Tarlton was so ____________ in appearance that a mere glimpse of his grinning face peeping through a curtain was enough to trigger prolonged peals of laughter.
+      </div>
+      <div class="options-grid">
+        <div class="option neutral">(A) animated — 活泼的</div>
+        <div class="option correct">(B) risible — 可笑的 ✓</div>
+        <div class="option wrong-ans">(C) comely — 漂亮的 ← Student's wrong answer</div>
+        <div class="option correct">(D) ludicrous — 荒谬可笑的 ✓</div>
+        <div class="option neutral">(E) handsome — 英俊的</div>
+        <div class="option neutral">(F) anomalous — 异常的</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ 形近词陷阱：comely ≠ comic</h5>
+        <p><strong>comely</strong>（好看的/漂亮的）≠ <strong>comic/comical</strong>（滑稽的）。外貌漂亮不会让人发笑！这是形近词误判。</p>
+      </div>
+      <div class="method-box">
+        <h5>💡 SE验证法</h5>
+        <p>B risible（可笑的）+ D ludicrous（荒谬可笑的）= 同义对 ✓ → 两词都代入句子成立 ✓</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1Q7 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q7</span>
+      <span class="q-type">双空等价 SE</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">同义验证失败</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 答错</span>
+        <span class="time-badge">⏱ 1m13s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Duke Ellington managed his career with extreme <strong>deliberateness</strong>: nothing was ___________, and even apparent compromises or trade-offs were actually artful accommodations leading to eventual triumphs.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(B) fortuitous, (D) accidental</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(A) effortless ✗, (B) fortuitous ✓</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ Student's Mistake</h5>
+        <p>选了(A) effortless：effortless（不费力的）≠ fortuitous（偶然的）——两者不是同义词，SE答案必须近义可互换！</p>
+        <p>deliberateness的反义是"accidental/fortuitous（偶然）"，不是"effortless（不费力）"</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">fortuitous ⭐</span><span class="def">偶然的（≠幸运的！）</span></div>
+        <div class="vocab-item"><span class="word">accidental</span><span class="def">偶然的，意外的</span></div>
+        <div class="vocab-item"><span class="word">deliberateness</span><span class="def">深思熟虑，刻意为之</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1Q8 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q8</span>
+      <span class="q-type">双空等价 SE</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 部分错</span>
+        <span class="time-badge">⏱ 55s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Ancient coins displayed in museums are almost by definition ___________, on display precisely because they are the <strong>most beautiful, the most elaborate, and the best-preserved</strong> samples.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(B) atypical, (D) exceptional</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(D) exceptional ✓, (E) disparate ✗</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ Student's Mistake：disparate ≠ exceptional</h5>
+        <p>disparate = 各种各样不同的（describe diversity）；这里说的是"精选的特殊样本" → exceptional/atypical。两词不近义，SE验证失败。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1Q9 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q9</span>
+      <span class="q-type">双空等价 SE</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">方向理解错误</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 全错</span>
+        <span class="time-badge">⏱ 1m26s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        The writer's expression of ___________ sentiments in fluid, vigorous prose is a strange blending <strong>the high and the low</strong> -- like an opera performed by <strong>sloppily dressed, unkempt musicians</strong>.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(B) vile, (D) base</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(A) patriotic ✗, (C) noble ✗</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ Student's Mistake：选了反方向！</h5>
+        <p>类比：歌剧（高雅）+ 邋遢的演奏者（低俗）= 高低混合。散文是"高"（fluid, vigorous），所以情感是"低"（vile/base）。选了noble（高尚的）是完全反方向！</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">vile</span><span class="def">卑鄙的，低劣的</span></div>
+        <div class="vocab-item"><span class="word">base</span><span class="def">卑鄙的（base instincts）</span></div>
+        <div class="vocab-item"><span class="word">lofty/noble</span><span class="def">高尚的（反义！）</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1Q10 & Q11 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q10–Q11</span>
+      <span class="q-type">阅读理解 RC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">火星地质</span>
+      <div class="q-result">
+        <span class="badge right">✅ 全对</span>
+        <span class="time-badge">⏱ 2m20s + 38s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;color:var(--gray);">两题均正确！Q10准确识别McGill的论证方向（反对新地壳说），Q11快速提取地球地质推断（38s！）。阅读理解基础扎实。</p>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">
+    <h2>Section 3 · Verbal</h2>
+    <span class="section-badge">13题</span>
+    <span class="section-badge">6错7对</span>
+  </div>
+
+  <!-- S3Q1 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q1</span>
+      <span class="q-type">单空填空 SC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">同义词辨析</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 答错</span>
+        <span class="time-badge">⏱ 1m18s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        In line with a vow he had made to himself as a young man to remain ___________ to all but his most intimate friends, Sacher cultivated an air of <strong>mystery and intrigue</strong> in public.
+      </div>
+      <div class="options-grid">
+        <div class="option neutral">(A) irascible — 易怒的</div>
+        <div class="option neutral">(B) loquacious — 话多的</div>
+        <div class="option correct">(C) inscrutable — 深不可测的 ✓</div>
+        <div class="option neutral">(D) amiable — 和蔼的</div>
+        <div class="option wrong-ans">(E) inconspicuous — 低调不显眼的 ← Student's answer</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ inscrutable vs inconspicuous</h5>
+        <p><strong>inconspicuous</strong> = 低调、不引人注意（在场但不引人注目）</p>
+        <p><strong>inscrutable</strong> = 深不可测，让人读不懂你（神秘感）</p>
+        <p>文章说：cultivated an air of <strong>mystery and intrigue</strong> → 要的是"神秘"，不是"低调"。本次出现2次，必须背！</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">inscrutable ⭐⭐</span><span class="def">深不可测，本次出现2次！</span></div>
+        <div class="vocab-item"><span class="word">inconspicuous</span><span class="def">低调的，不显眼的</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q2 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q2</span>
+      <span class="q-type">单空填空 SC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">转折对比型</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 答错</span>
+        <span class="time-badge">⏱ 1m14s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        The detours taken in the course of the essay, which could easily have been ___________, <strong>instead proved to be a virtue</strong> because they epitomized the instability of a period characterized by constant experimentation and change.
+      </div>
+      <div class="options-grid">
+        <div class="option correct">(A) perplexing — 令人困惑的 ✓</div>
+        <div class="option neutral">(B) fruitful — 有成效的</div>
+        <div class="option neutral">(C) edifying — 有教育意义的</div>
+        <div class="option neutral">(D) salient — 显著的</div>
+        <div class="option wrong-ans">(E) provocative — 挑衅的/引人思考的 ← Student's answer</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ Student's Mistake</h5>
+        <p>"instead proved to be a virtue" = 转折，空格需要填<strong>负面词</strong>。</p>
+        <p>provocative有时有正面含义（引人深思），不能形成清晰的"负面→正面"转折。perplexing（令人困惑）才是明确的负面词。</p>
+      </div>
+      <div class="method-box">
+        <h5>💡 instead转折结构</h5>
+        <p>could easily have been [负面] → instead proved to be a virtue [正面] → 空格 = 负面词</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q3 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q3</span>
+      <span class="q-type">双空填空 TC</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 全错</span>
+        <span class="time-badge">⏱ 2m21s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Underlying the new laws against business corruption is the growing recognition that bribery and extortion have demonstrably (i)___ consequences. Gone is the day when some pundits seriously argued that corruption should be (ii)___ as an inevitable by-product of intractable economic forces.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(C) deleterious, (F) tolerated</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(A) meritorious ✗, (E) emphasized ✗</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ 两空全错</h5>
+        <p><strong>meritorious（有价值的）</strong>完全反方向！新法律是"反腐"的，说明腐败有害，应选deleterious（有害的）。</p>
+        <p><strong>emphasized（被强调）</strong>逻辑荒谬。"corruption should be emphasized"无意义；tolerated（被容忍）才符合逻辑。</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">deleterious ⭐</span><span class="def">有害的（≈detrimental）</span></div>
+        <div class="vocab-item"><span class="word">meritorious</span><span class="def">有价值的（反义！）</span></div>
+        <div class="vocab-item"><span class="word">tolerated</span><span class="def">被容忍的</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q4 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q4</span>
+      <span class="q-type">三空填空 TC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">类比论证型</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 全错</span>
+        <span class="time-badge">⏱ 2m35s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Computers' triumph in chess had been engineered not by creating machines that (i)___ human thought, but by perfecting machines that played like machines. The analogy with flight is (ii)___ as long as people tried to fly by imitating birds, they were (iii)___ to fail. Once engineering escaped the paradigm of the familiar, people were soon flying much faster than birds.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(A) aped, (E) instructive, (I) doomed</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(C) subverted ✗, (D) disingenuous ✗, (G) expected ✗</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ 三空全错</h5>
+        <p><strong>ape（模仿）</strong>：作动词高频出现！"ape human thought" = 模仿人类思维，专家预期的方向。</p>
+        <p><strong>instructive（有启发性的）</strong>：类比的目的是帮助说明道理，不是"不诚实"。</p>
+        <p><strong>doomed（注定失败）</strong>：比expected语气强得多，符合文章的类比力度。</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">ape ⭐</span><span class="def">v. 模仿（高频考点！）</span></div>
+        <div class="vocab-item"><span class="word">instructive</span><span class="def">有教益的，有启发的</span></div>
+        <div class="vocab-item"><span class="word">doomed</span><span class="def">注定失败的</span></div>
+        <div class="vocab-item"><span class="word">disingenuous</span><span class="def">不坦诚的，虚伪的</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q5 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q5</span>
+      <span class="q-type">阅读理解 RC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">Dartmoor 文章</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 答错</span>
+        <span class="time-badge">⏱ 1m58s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;margin-bottom:12px;">Many people assume Dartmoor/Bodmin Moor has little human impact. Actually human impact is profound (5000+ years).</p>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(A) Their land cover is a completely natural feature.</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(E) Soils have been made difficult to use by human activity. ✗</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ 因果方向搞反了</h5>
+        <p>文章说：贫瘠土地 → 造成了"无人干预"的印象（表象）。你选的(E)说"土地因人类变差" → 这与文章事实相反，文章说人类影响的是land cover，而非使土地质量变差。</p>
+      </div>
+      <div class="method-box">
+        <h5>💡 推断题方法</h5>
+        <p>"many people assume"题 → 找文章中人们误解的内容 → "add to the impression of little human interference" → people assume it's natural → (A)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q6 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q6</span>
+      <span class="q-type">阅读理解 RC 多选</span>
+      <div class="q-result">
+        <span class="badge right">✅ 正确</span>
+        <span class="time-badge">⏱ 1m7s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;color:var(--gray);">正确选出(A)(B)：poor soils + blanket peats。文章原文直接说"add to the impression of little human interference"，定位准确。</p>
+    </div>
+  </div>
+
+  <!-- S3Q7 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q7</span>
+      <span class="q-type">阅读理解 RC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">45Q立法文章</span>
+      <div class="q-result">
+        <span class="badge right">✅ 正确</span>
+        <span class="time-badge">⏱ 4m17s（偏慢）</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;color:var(--gray);">主旨题正确(A)。注意耗时4分17秒偏长，建议主旨题控制在2分钟内：先读文章整体结构，不要逐字精读。</p>
+    </div>
+  </div>
+
+  <!-- S3Q8 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q8</span>
+      <span class="q-type">阅读理解 RC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">细节题</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 答错</span>
+        <span class="time-badge">⏱ 1m44s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(E) Its proponents' claims that it is part of a climate change solution are misleading.</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(C) Enhanced oil recovery produces more emissions than ethanol/natural gas. ✗</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ 细节题不能自行推断</h5>
+        <p>文章原文：critics称45Q是"fossil-fuel subsidy program in disguise（披着外衣的化石燃料补贴）"。这对应(E)：声称是气候解决方案是误导性的。</p>
+        <p>你选的(C)说"更多碳排放" → 文章从未提供这个对比数据，是你自己推断的！</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q9 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q9</span>
+      <span class="q-type">阅读理解 RC</span>
+      <div class="q-result">
+        <span class="badge right">✅ 正确</span>
+        <span class="time-badge">⏱ 2m13s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;color:var(--gray);">Kurt Waltzer支持者视角题，正确选(E)。准确理解Waltzer认为将CO₂转化为可交易商品是第一步。</p>
+    </div>
+  </div>
+
+  <!-- S3Q10 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q10</span>
+      <span class="q-type">双空等价 SE</span>
+      <div class="q-result">
+        <span class="badge right">✅ 正确</span>
+        <span class="time-badge">⏱ 1m6s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;color:var(--gray);">正确选(A) acclaimed + (D) applauded。"less than universally ___" → 用正面词，两词近义。</p>
+    </div>
+  </div>
+
+  <!-- S3Q11 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q11</span>
+      <span class="q-type">双空等价 SE</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">近义词混淆</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 部分错</span>
+        <span class="time-badge">⏱ 29s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Unlike his ___________ predecessor, Mr. Kohler is straightforward and down-to-earth: <strong>frank, unassuming, and voluble</strong>.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(C) inscrutable, (E) sphinxlike</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(D) garrulous ✗, (E) sphinxlike ✓</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ garrulous与voluble同义！</h5>
+        <p>Kohler很voluble（健谈）→ 前任应该是不健谈的。但garrulous = 话多的（与voluble同义！）→ unlike就失效了。</p>
+        <p>正确逻辑：前任不健谈 + 神秘 → inscrutable/sphinxlike</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q12 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q12</span>
+      <span class="q-type">双空等价 SE</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">词义范围错误</span>
+      <div class="q-result">
+        <span class="badge wrong">❌ 全错</span>
+        <span class="time-badge">⏱ 1m2s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="question-text">
+        Conditions at the training camp for runners were ___________; <strong>few of the runners had proper shoes or a training kit</strong>.
+      </div>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(C) spartan, (D) austere</div>
+        <div class="answer-box wrong-ans"><strong>Student's answer</strong>(A) unpleasant ✗, (B) tedious ✗</div>
+      </div>
+      <div class="error-box">
+        <h5>⚡ 证据说的是物质简陋，不是心理感受</h5>
+        <p>后半句证据："没有合适的鞋和训练装备" → 说明物质条件<strong>简陋</strong>，而非"不愉快"或"无聊"</p>
+        <p>spartan/austere = 简朴、朴素（物质层面）；unpleasant/tedious = 情感感受</p>
+      </div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="word">spartan ⭐</span><span class="def">简朴艰苦的（来自Sparta）</span></div>
+        <div class="vocab-item"><span class="word">austere</span><span class="def">朴素严苛的（物质简陋）</span></div>
+        <div class="vocab-item"><span class="word">tedious</span><span class="def">乏味无聊的（情感感受）</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3Q13 -->
+  <div class="question-card">
+    <div class="q-header">
+      <span class="q-num">Q13</span>
+      <span class="q-type">阅读理解 RC</span>
+      <span class="q-type" style="background:#fef3c7;color:#92400e;">类比推断</span>
+      <div class="q-result">
+        <span class="badge wrong">⬜ 未作答</span>
+        <span class="time-badge">⏱ 1m36s</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <p style="font-size:0.875rem;margin-bottom:12px;">文章：语言歧义导致误解，就像"He took his stick—no, not John's, but his own"。</p>
+      <div class="answer-row">
+        <div class="answer-box correct"><strong>正确答案</strong>(A) I only：X用"you"指一群人，Y理解为一人</div>
+      </div>
+      <div class="section-block">
+        <h4>🧠 解析</h4>
+        <p>文章的误解模式：<strong>同一个词在说话人/听者心中指代不同</strong>（需要补充澄清）</p>
+        <ul>
+          <li>(I) "you"可指一人或多人 → 语言本身的<strong>指代歧义</strong> ✓</li>
+          <li>(II) 说话人用错了词 → 这是<strong>说话人的错误</strong>，不是语言歧义 ✗</li>
+          <li>(III) 听者不懂词义 → 这是<strong>词义不知</strong>，不是语言指代歧义 ✗</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 总结方法论 -->
+  <div class="summary-section">
+    <h2>Test-Taking System</h2>
+
+    <div class="method-card">
+      <h3>📌 SE 双空等价题 · 三步法</h3>
+      <div class="steps">
+        <div class="step"><span class="step-num">1</span><div>读句子，找逻辑方向（正/负/取反/对比）</div></div>
+        <div class="step"><span class="step-num">2</span><div>在6个选项中找2个<strong>近义词</strong>（可以互换）</div></div>
+        <div class="step"><span class="step-num">3</span><div>验证：两词都代入句子是否成立？两词是否真的近义？</div></div>
+      </div>
+      <p style="font-size:0.875rem;color:var(--gray);margin-top:10px;">⚠ 常见错误：选了方向对但不近义的两词（effortless ≠ fortuitous）</p>
+    </div>
+
+    <div class="method-card">
+      <h3>📌 TC 多空填空题 · 逻辑链法</h3>
+      <div class="steps">
+        <div class="step"><span class="step-num">1</span><div>标出逻辑连接词：yet/but/because/although/instead/rather</div></div>
+        <div class="step"><span class="step-num">2</span><div>给每个空格标正/负方向</div></div>
+        <div class="step"><span class="step-num">3</span><div>建立内部一致逻辑链（三空答案要互相支撑）</div></div>
+        <div class="step"><span class="step-num">4</span><div>用词义替换验证，排除近义干扰词</div></div>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <h3>📌 RC 阅读理解 · 注意事项</h3>
+      <div class="steps">
+        <div class="step"><span class="step-num">✓</span><div><strong>细节题</strong>：必须找原文依据，绝对不能自行推断</div></div>
+        <div class="step"><span class="step-num">✓</span><div><strong>推断题</strong>：选"文章最接近说的"，不选"文章没提的"</div></div>
+        <div class="step"><span class="step-num">✓</span><div><strong>主旨题</strong>：控制在2分钟内，先抓文章整体结构</div></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:24px;margin-bottom:14px;font-size:1rem;font-weight:700;">📚 本次考试必背词汇（优先级排序）</h3>
+    <div class="vocab-master-grid">
+      <div class="vocab-master-item"><span class="word">inscrutable ⭐⭐</span><span class="def">深不可测（考了2次！）</span><span class="tip">in-不 + scru读 → 读不透</span></div>
+      <div class="vocab-master-item"><span class="word">salient ⭐⭐</span><span class="def">突出的，显著的</span><span class="tip">高频词，务必背</span></div>
+      <div class="vocab-master-item"><span class="word">approbation ⭐</span><span class="def">赞许，批准</span><span class="tip">appro- = approve</span></div>
+      <div class="vocab-master-item"><span class="word">deleterious ⭐</span><span class="def">有害的</span><span class="tip">≈ detrimental/harmful</span></div>
+      <div class="vocab-master-item"><span class="word">fortuitous ⭐</span><span class="def">偶然的</span><span class="tip">≠ fortunate（幸运）！</span></div>
+      <div class="vocab-master-item"><span class="word">ape ⭐</span><span class="def">v. 模仿</span><span class="tip">ape作动词 = 模仿</span></div>
+      <div class="vocab-master-item"><span class="word">spartan ⭐</span><span class="def">简朴艰苦的</span><span class="tip">来自斯巴达</span></div>
+      <div class="vocab-master-item"><span class="word">overblown</span><span class="def">夸张的，过度渲染的</span><span class="tip">over+blown吹大了</span></div>
+      <div class="vocab-master-item"><span class="word">doomed</span><span class="def">注定失败的</span><span class="tip">doomed to fail</span></div>
+      <div class="vocab-master-item"><span class="word">churlish</span><span class="def">粗鲁的，小气的</span><span class="tip">churl粗野之人</span></div>
+      <div class="vocab-master-item"><span class="word">risible/ludicrous</span><span class="def">可笑的/荒谬可笑的</span><span class="tip">SE同义对</span></div>
+      <div class="vocab-master-item"><span class="word">vile/base</span><span class="def">卑鄙的，低劣的</span><span class="tip">high vs low对比记忆</span></div>
+    </div>
+  </div>
+
+</div>
+<footer>GRE Verbal Analysis Report · Generated by AI-powered Tutor · Sample Output</footer>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRE Verbal 解析报告</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #eef2ff;
+    --wrong: #ef4444;
+    --wrong-light: #fef2f2;
+    --right: #22c55e;
+    --right-light: #f0fdf4;
+    --warning: #f59e0b;
+    --warning-light: #fffbeb;
+    --gray: #6b7280;
+    --gray-light: #f9fafb;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'PingFang SC', 'Hiragino Sans GB', system-ui, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.7; }
+  
+  .hero { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 48px 32px 40px; text-align: center; }
+  .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .hero p { opacity: 0.85; font-size: 1rem; }
+  .score-row { display: flex; justify-content: center; gap: 32px; margin-top: 24px; flex-wrap: wrap; }
+  .score-card { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 16px 24px; text-align: center; }
+  .score-card .num { font-size: 2rem; font-weight: 800; }
+  .score-card .label { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+  
+  .overview { background: white; border-radius: 16px; padding: 28px; margin-bottom: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .overview h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--primary); }
+  
+  .skill-bars { display: grid; gap: 12px; }
+  .skill-row { display: flex; align-items: center; gap: 12px; }
+  .skill-name { width: 160px; font-size: 0.875rem; color: var(--gray); flex-shrink: 0; }
+  .bar-wrap { flex: 1; background: #f1f5f9; border-radius: 6px; height: 20px; overflow: hidden; }
+  .bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; color: white; font-weight: 600; }
+  .bar.good { background: var(--right); }
+  .bar.mid { background: var(--warning); }
+  .bar.bad { background: var(--wrong); }
+  .skill-stat { width: 50px; text-align: right; font-size: 0.875rem; font-weight: 700; }
+  
+  .section-header { background: var(--primary); color: white; border-radius: 12px; padding: 16px 24px; margin: 32px 0 20px; display: flex; align-items: center; gap: 12px; }
+  .section-header h2 { font-size: 1.1rem; font-weight: 700; }
+  .section-badge { background: rgba(255,255,255,0.2); border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; }
+  
+  .question-card { background: white; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+  .q-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .q-num { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+  .q-type { background: var(--primary-light); color: var(--primary); padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .q-result { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+  .badge { padding: 3px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+  .badge.wrong { background: var(--wrong-light); color: var(--wrong); }
+  .badge.right { background: var(--right-light); color: var(--right); }
+  .time-badge { background: var(--gray-light); color: var(--gray); padding: 3px 8px; border-radius: 20px; font-size: 0.75rem; }
+  
+  .q-body { padding: 20px; }
+  .question-text { background: #f8fafc; border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 14px 16px; font-style: italic; margin-bottom: 16px; font-size: 0.9rem; line-height: 1.8; white-space: pre-wrap; }
+  
+  .options-grid { display: grid; gap: 6px; margin-bottom: 16px; }
+  .option { padding: 8px 14px; border-radius: 8px; font-size: 0.875rem; border: 1.5px solid transparent; }
+  .option.correct { border-color: var(--right); background: var(--right-light); color: #166534; font-weight: 600; }
+  .option.wrong-ans { border-color: var(--wrong); background: var(--wrong-light); color: #991b1b; }
+  .option.neutral { border-color: var(--border); background: var(--gray-light); color: var(--gray); }
+
+  .answer-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.875rem; }
+  .answer-box { padding: 8px 14px; border-radius: 8px; }
+  .answer-box.correct { background: var(--right-light); }
+  .answer-box.wrong-ans { background: var(--wrong-light); }
+  .answer-box strong { display: block; font-size: 0.75rem; margin-bottom: 2px; }
+  
+  .section-block { margin-bottom: 14px; }
+  .section-block h4 { font-size: 0.875rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px dashed var(--border); }
+  .section-block p { font-size: 0.875rem; color: #374151; margin-bottom: 6px; }
+  .section-block table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 8px 0; }
+  .section-block th { background: var(--primary-light); color: var(--primary); padding: 6px 10px; text-align: left; font-weight: 600; }
+  .section-block td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  
+  .error-box { background: var(--wrong-light); border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+  .error-box h5 { color: var(--wrong); font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; }
+  .error-box p { font-size: 0.85rem; color: #7f1d1d; }
+  
+  .method-box { background: var(--primary-light); border: 1px solid #c7d2fe; border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+  .method-box h5 { color: var(--primary); font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; }
+  .method-box p { font-size: 0.85rem; color: #3730a3; }
+  
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 8px; }
+  .vocab-item { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; }
+  .vocab-item .word { font-weight: 700; color: var(--primary); }
+  .vocab-item .def { color: var(--gray); margin-top: 2px; }
+  
+  .summary-section { background: white; border-radius: 16px; padding: 28px; margin-top: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .summary-section h2 { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
+  .method-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  .method-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b; }
+  
+  @media print {
+    .hero { background: #4f46e5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .question-card { break-inside: avoid; }
+    .section-header { break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO SECTION - populate with actual data -->
+<div class="hero">
+  <h1>GRE Verbal 解析报告</h1>
+  <p id="report-date">日期：2026年5月10日模考</p>
+  <div class="score-row">
+    <div class="score-card">
+      <div class="num" id="verbal-score">143</div>
+      <div class="label">Verbal 分数</div>
+    </div>
+    <div class="score-card">
+      <div class="num" id="percentile">19%</div>
+      <div class="label">Percentile</div>
+    </div>
+    <div class="score-card">
+      <div class="num" id="total-score">313</div>
+      <div class="label">总分</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- OVERVIEW SECTION -->
+  <div class="overview">
+    <h2>总览：你的弱点地图</h2>
+    <div class="skill-bars" id="overview-bars">
+      <!-- populated by JS or static content -->
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section-header">
+    <h2>SECTION 1 · VERBAL（共11题）</h2>
+    <span class="section-badge">11 Questions</span>
+  </div>
+  <div id="section1-questions">
+    <!-- Q1-Q11 populated here -->
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section-header">
+    <h2>SECTION 3 · VERBAL（共13题）</h2>
+    <span class="section-badge">13 Questions</span>
+  </div>
+  <div id="section3-questions">
+    <!-- Q1-Q13 populated here -->
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-section">
+    <h2>综合总结：你的做题体系</h2>
+    <div id="summary-content">
+      <!-- populated here -->
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

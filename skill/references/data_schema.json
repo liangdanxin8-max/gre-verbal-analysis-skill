@@ -1,0 +1,29 @@
+{
+  "description": "JSON schema for scraped GRE Verbal question data",
+  "item_structure": {
+    "section": "number (1 or 3)",
+    "qNum": "number (1-13)",
+    "questionId": "string",
+    "type": "string (SC|SE|TC2|TC3|RC)",
+    "questionText": "string (full sentence with blank markers)",
+    "options": ["(A)...", "(B)...", ...],
+    "userAnswer": "string (e.g., 'B' or '(B)(E)')",
+    "correctAnswer": "string (e.g., 'D' or '(A)(F)')",
+    "isCorrect": "boolean",
+    "timeSpent": "string (e.g., '54s' or '1m23s')",
+    "rawHtml": "string (optional, full page HTML for reference)"
+  },
+  "type_codes": {
+    "SC": "Single blank, 1-of-5",
+    "SE": "Sentence Equivalence, pick 2 synonyms from 6",
+    "TC2": "Text Completion, 2 blanks",
+    "TC3": "Text Completion, 3 blanks",
+    "RC": "Reading Comprehension"
+  },
+  "notes": [
+    "SE questions have 6 options, need 2 correct answers that are synonyms",
+    "TC questions have blank1/blank2/blank3 in separate option groups",
+    "RC questions may have sub-questions (same passage, multiple Qs)",
+    "timeSpent format: 'XXs' or 'XmYYs'"
+  ]
+}
